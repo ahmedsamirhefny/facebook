@@ -6,6 +6,8 @@ import { RightSidebar } from '@/components/fb/right-sidebar'
 import { Feed } from '@/components/fb/feed'
 import { ChatDock } from '@/components/fb/chat-dock'
 import { ProfileModal } from '@/components/fb/profile-modal'
+import { SettingsDialog } from '@/components/fb/settings-dialog'
+import { FriendsDialog } from '@/components/fb/friends-dialog'
 import { StoryViewer } from '@/components/fb/story-viewer'
 
 export default function HomePage() {
@@ -20,6 +22,8 @@ export default function HomePage() {
         <RightSidebar />
       </main>
       <ProfileModal />
+      <FriendsDialog />
+      <SettingsDialog />
       <StoryViewer />
       <ChatDock />
     </div>

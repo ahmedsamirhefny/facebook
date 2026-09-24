@@ -26,6 +26,10 @@ interface ChatState {
   profileTarget: string | null
   /** When set, the story viewer opens at this index. */
   storyInitialIndex: number | null
+  /** Whether the settings dialog is open. */
+  settingsOpen: boolean
+  /** Whether the friends dialog is open. */
+  friendsOpen: boolean
 
   openChat: (u: { userId: string; name: string; avatarUrl: string }) => void
   closeChat: (userId: string) => void
@@ -37,6 +41,8 @@ interface ChatState {
 
   openProfile: (userId: string | null) => void
   openStory: (index: number | null) => void
+  setSettingsOpen: (open: boolean) => void
+  setFriendsOpen: (open: boolean) => void
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -45,6 +51,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   typingFrom: {},
   profileTarget: null,
   storyInitialIndex: null,
+  settingsOpen: false,
+  friendsOpen: false,
 
   openChat: (u) => {
     const existing = get().openWindows.find((w) => w.userId === u.userId)
@@ -93,4 +101,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   openProfile: (userId) => set(() => ({ profileTarget: userId })),
   openStory: (index) => set(() => ({ storyInitialIndex: index })),
+  setSettingsOpen: (open) => set(() => ({ settingsOpen: open })),
+  setFriendsOpen: (open) => set(() => ({ friendsOpen: open })),
 }))

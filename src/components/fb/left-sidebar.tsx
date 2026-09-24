@@ -19,6 +19,7 @@ import {
   Moon,
   Sun,
 } from 'lucide-react'
+import { toast } from 'sonner'
 
 const MENU = [
   { label: 'Friends', Icon: Users, color: '#1877f2' },
@@ -31,9 +32,17 @@ const MENU = [
   { label: 'Gaming', Icon: Gamepad2, color: '#a234ad' },
 ]
 
-function SideMenuButton({ label, Icon, color }: (typeof MENU)[number]) {
+function SideMenuButton({
+  label,
+  Icon,
+  color,
+  onClick,
+}: (typeof MENU)[number] & { onClick: () => void }) {
   return (
-    <button className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-[#e4e6eb] dark:hover:bg-[#3a3b3c] text-left">
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-[#e4e6eb] dark:hover:bg-[#3a3b3c] text-left"
+    >
       <span
         className="grid place-items-center h-9 w-9 rounded-full"
         style={{ backgroundColor: `${color}22`, color }}
@@ -51,6 +60,7 @@ export function LeftSidebar() {
   const feed = useFeed()
   const { theme, setTheme } = useTheme()
   const openProfile = useChatStore((s) => s.openProfile)
+  const setFriendsOpen = useChatStore((s) => s.setFriendsOpen)
   const me = feed.data?.me
   const [showMore, setShowMore] = React.useState(false)
 
@@ -77,7 +87,17 @@ export function LeftSidebar() {
           {/* Menu */}
           <div className="flex flex-col gap-0.5">
             {menu.map((item) => (
-              <SideMenuButton key={item.label} {...item} />
+              <SideMenuButton
+                key={item.label}
+                {...item}
+                onClick={() =>
+                  item.label === 'Friends'
+                    ? setFriendsOpen(true)
+                    : toast(`${item.label} isn\u2019t available in this demo build.`, {
+                        description: 'Try the feed, chat, stories, search, and profile features.',
+                      })
+                }
+              />
             ))}
             <button
               onClick={() => setShowMore((v) => !v)}

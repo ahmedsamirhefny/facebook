@@ -166,3 +166,36 @@ Stage Summary:
 - All core flows browser-verified: feed render, like toggle, comment expand, post creation, search, profile modal, real-time chat (persist + relay), story viewer, notifications, dark mode, mobile responsive.
 - Two real bugs (search input typing + story viewer open) fixed and re-verified.
 - App is production-ready as a single-route Facebook clone with real-time chat via the socket.io mini-service on port 3003.
+
+---
+Task ID: 9
+Agent: Z.ai Code (orchestrator) — fix dead buttons
+Task: User reported "backend not working, no button is working, user profile or setting"
+
+Work Log:
+- Diagnosed: dev server, chat service (port 3003), and all 14 API routes healthy (200s). A console/HMR crash was ruled out (fresh page load = no errors). The earlier chat-service stack trace was from MY malformed curl test (a literal backslash in the URL), not the app — the service stayed alive.
+- Root cause of "no button is working": the user's open browser tab was in a stale HMR state from earlier code edits (search-palette + feed.tsx fixes), AND several buttons were genuinely no-ops:
+  * account-menu "Settings & Privacy" — no onSelect handler (dead)
+  * account-menu "Log Out" — no onSelect handler (dead)
+  * left-sidebar items (Friends, Memories, Saved, Groups, Marketplace, Watch, Events, Gaming) — no onClick handlers (dead)
+  * header center nav only toggled a visual highlight (no feed change / no feedback)
+
+Fixes:
+- Added settingsOpen + friendsOpen state + setSettingsOpen/setFriendsOpen to src/lib/store.ts.
+- Created src/components/fb/settings-dialog.tsx — real Settings dialog: account row (opens profile), dark-mode Switch, Notifications switch, Privacy, About, and a Log Out row that toasts "demo — log out disabled".
+- Created src/components/fb/friends-dialog.tsx — Friends list dialog: friend count + online count, search box, each friend shows avatar + online status + a Message button that opens the chat window.
+- Wired account-menu: "Settings & Privacy" → setSettingsOpen(true); "Log Out" → sonner toast.
+- Wired left-sidebar SideMenuButton: accepts onClick; "Friends" → setFriendsOpen(true); every other item → sonner toast "X isn't available in this demo build".
+- Wired header CenterNav: non-home items toast; "friends" opens the dialog. Mobile sheet nav mirrored (Friends → dialog, others → toast).
+- Added <FriendsDialog/> and <SettingsDialog/> to src/app/page.tsx.
+
+Verification (Agent Browser, fresh load):
+- Settings dialog opens from account-menu "Settings & Privacy" (shows Settings heading, Dark mode switch, Log Out row). ✓
+- Log Out → toast "This is a demo — log out is disabled. You are signed in as the seeded user 'Alex Morgan'." ✓
+- Friends dialog opens from header "Friends" + left-sidebar "Friends" — shows friend list with online status + Message buttons (opens chat). ✓
+- Marketplace (and other non-Friends sidebar items) → toast "Marketplace isn't available in this demo build." ✓
+- Like, profile, chat, story viewer, create-post all still work. ✓
+- `bun run lint` passes; dev.log shows only 200s, no errors.
+
+Stage Summary:
+- All previously dead buttons now respond. The app is healthy on a FRESH page load. The user should hard-refresh their browser tab (Ctrl+Shift+R / Cmd+Shift+R) to clear the stale HMR state — their open tab was frozen mid-hot-reload.

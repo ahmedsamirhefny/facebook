@@ -13,10 +13,12 @@ import { useTheme } from 'next-themes'
 import { UserAvatar } from './user-avatar'
 import { useChatStore } from '@/lib/store'
 import { ChevronDown, LogOut, Moon, Settings, Sun, Plus } from 'lucide-react'
+import { toast } from 'sonner'
 
 function AccountMenu({ me }: { me: { id: string; name: string; avatarUrl: string; firstName: string } }) {
   const { theme, setTheme } = useTheme()
   const openProfile = useChatStore((s) => s.openProfile)
+  const setSettingsOpen = useChatStore((s) => s.setSettingsOpen)
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -60,13 +62,23 @@ function AccountMenu({ me }: { me: { id: string; name: string; avatarUrl: string
             </div>
           </div>
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer text-sm text-[#050505] dark:text-[#e4e6eb] hover:bg-[#f0f2f5] dark:hover:bg-[#3a3b3c]">
+        <DropdownMenuItem
+          onSelect={() => setSettingsOpen(true)}
+          className="cursor-pointer text-sm text-[#050505] dark:text-[#e4e6eb] hover:bg-[#f0f2f5] dark:hover:bg-[#3a3b3c]"
+        >
           <span className="grid place-items-center h-7 w-7 rounded-full bg-[#e4e6eb] dark:bg-[#3a3b3c]">
             <Settings className="size-4" />
           </span>
           <span>Settings & Privacy</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer text-sm text-[#050505] dark:text-[#e4e6eb] hover:bg-[#f0f2f5] dark:hover:bg-[#3a3b3c]">
+        <DropdownMenuItem
+          onSelect={() => {
+            toast('This is a demo \u2014 log out is disabled.', {
+              description: 'You are signed in as the seeded user "Alex Morgan".',
+            })
+          }}
+          className="cursor-pointer text-sm text-[#050505] dark:text-[#e4e6eb] hover:bg-[#f0f2f5] dark:hover:bg-[#3a3b3c]"
+        >
           <span className="grid place-items-center h-7 w-7 rounded-full bg-[#e4e6eb] dark:bg-[#3a3b3c]">
             <LogOut className="size-4" />
           </span>

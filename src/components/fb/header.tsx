@@ -30,6 +30,7 @@ import {
   Menu,
   Search,
 } from 'lucide-react'
+import { toast } from 'sonner'
 
 const NAV = [
   { key: 'home', label: 'Home', Icon: Home },
@@ -50,7 +51,14 @@ function CenterNav({ active, onChange }: { active: string; onChange: (k: string)
             key={key}
             aria-label={label}
             title={label}
-            onClick={() => onChange(key)}
+            onClick={() => {
+              onChange(key)
+              if (key !== 'home') {
+                toast(`${label} isn\u2019t available in this demo build.`, {
+                  description: 'Stick to Home for the feed, or open Friends.',
+                })
+              }
+            }}
             className={`relative grid h-12 w-[105px] place-items-center rounded-lg transition-colors ${
               isActive
                 ? 'text-[#1877f2] bg-white/10 hover:bg-white/15'
@@ -135,6 +143,7 @@ export function Header() {
   const me = feed.data?.me
   const [active, setActive] = React.useState('home')
   const [mobileSheet, setMobileSheet] = React.useState(false)
+  const setFriendsOpen = useChatStore((s) => s.setFriendsOpen)
 
   const unread = (notifications.data ?? []).filter((n) => !n.read).length
 
@@ -218,6 +227,13 @@ export function Header() {
                 onClick={() => {
                   setActive(key)
                   setMobileSheet(false)
+                  if (key === 'friends') {
+                    setFriendsOpen(true)
+                  } else if (key !== 'home') {
+                    toast(`${label} isn\u2019t available in this demo build.`, {
+                      description: 'Stick to Home for the feed.',
+                    })
+                  }
                 }}
                 className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#e4e6eb] dark:hover:bg-[#3a3b3c] text-[#050505] dark:text-[#e4e6eb]"
               >
