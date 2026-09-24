@@ -1,0 +1,138 @@
+// Facebook-like social network schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  name       String
+  firstName  String
+  lastName   String
+  avatarUrl  String
+  coverUrl   String?
+  bio        String?
+  work       String?
+  education  String?
+  location   String?
+  online     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  posts         Post[]
+  comments      Comment[]
+  likes         Like[]
+  stories       Story[]
+  notificationsReceived Notification[] @relation("NotificationReceived")
+  notificationsFrom     Notification[] @relation("NotificationFrom")
+  sentMessages       Message[] @relation("MessageSender")
+  receivedMessages   Message[] @relation("MessageReceiver")
+  friendshipsA  Friendship[] @relation("FriendshipA")
+  friendshipsB  Friendship[] @relation("FriendshipB")
+}
+
+model Post {
+  id         String   @id @default(cuid())
+  authorId   String
+  content    String
+  imageUrl   String?
+  bgColor    String?
+  feeling    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments   Comment[]
+  likes      Like[]
+
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  postId     String
+  authorId   String
+  content    String
+  createdAt  DateTime @default(now())
+
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+model Like {
+  id         String   @id @default(cuid())
+  postId     String?
+  commentId  String?
+  userId     String
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post       Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+}
+
+model Friendship {
+  id         String   @id @default(cuid())
+  userAId    String
+  userBId    String
+  status     String   @default("ACCEPTED") // PENDING | ACCEPTED
+  createdAt  DateTime @default(now())
+
+  userA      User     @relation("FriendshipA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB      User     @relation("FriendshipB", fields: [userBId], references: [id], onDelete: Cascade)
+
+  @@unique([userAId, userBId])
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String
+  content    String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  sender     User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId, receiverId])
+  @@index([receiverId])
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  userId     String
+  fromUserId String
+  type       String   // like | comment | friend | tag | message
+  text       String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  user       User     @relation("NotificationReceived", fields: [userId], references: [id], onDelete: Cascade)
+  fromUser   User     @relation("NotificationFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Story {
+  id         String   @id @default(cuid())
+  userId     String
+  imageUrl   String
+  caption    String?
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
