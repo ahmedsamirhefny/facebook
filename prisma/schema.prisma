@@ -21,6 +21,7 @@ model User {
   work       String?
   education  String?
   location   String?
+  password   String?
   online     Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt

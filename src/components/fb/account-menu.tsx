@@ -13,7 +13,7 @@ import { useTheme } from 'next-themes'
 import { UserAvatar } from './user-avatar'
 import { useChatStore } from '@/lib/store'
 import { ChevronDown, LogOut, Moon, Settings, Sun, Plus } from 'lucide-react'
-import { toast } from 'sonner'
+import { signOut } from 'next-auth/react'
 
 function AccountMenu({ me }: { me: { id: string; name: string; avatarUrl: string; firstName: string } }) {
   const { theme, setTheme } = useTheme()
@@ -72,11 +72,7 @@ function AccountMenu({ me }: { me: { id: string; name: string; avatarUrl: string
           <span>Settings & Privacy</span>
         </DropdownMenuItem>
         <DropdownMenuItem
-          onSelect={() => {
-            toast('This is a demo \u2014 log out is disabled.', {
-              description: 'You are signed in as the seeded user "Alex Morgan".',
-            })
-          }}
+          onSelect={() => signOut({ callbackUrl: '/' })}
           className="cursor-pointer text-sm text-[#050505] dark:text-[#e4e6eb] hover:bg-[#f0f2f5] dark:hover:bg-[#3a3b3c]"
         >
           <span className="grid place-items-center h-7 w-7 rounded-full bg-[#e4e6eb] dark:bg-[#3a3b3c]">

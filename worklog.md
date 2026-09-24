@@ -199,3 +199,39 @@ Verification (Agent Browser, fresh load):
 
 Stage Summary:
 - All previously dead buttons now respond. The app is healthy on a FRESH page load. The user should hard-refresh their browser tab (Ctrl+Shift+R / Cmd+Shift+R) to clear the stale HMR state — their open tab was frozen mid-hot-reload.
+
+---
+Task ID: 10
+Agent: Z.ai Code (orchestrator) — real auth (live, not demo)
+Task: User wants real login + register pages, live (no auto-logged-in demo mode)
+
+Work Log:
+- Added `password String?` to User model in prisma/schema.prisma; ran db:push + db:generate.
+- Installed bcryptjs (+ @types/bcryptjs).
+- Created src/lib/auth.config.ts — NextAuth config: CredentialsProvider (email+password, bcrypt.compare), JWT sessions (30d), callbacks that expose user.id on the JWT/session, NEXTAUTH_SECRET.
+- Created src/app/api/auth/[...nextauth]/route.ts — NextAuth App Router handler (GET+POST).
+- Created src/app/api/auth/register/route.ts — validates email/name/password (>=6 chars), hashes with bcrypt, creates User (random pravatar avatar + picsum cover), auto-friends the new user with 5 existing users so the feed/contacts aren't empty.
+- Rewrote src/lib/auth.ts: getCurrentUser() now resolves from getServerSession(authOptions) (not the hardcoded seeded email). Returns null when unauthenticated. Re-exports authOptions.
+- Updated /api/me to return 401 (was 404) when not logged in. All other protected routes already returned 401 on null me.
+- Added SessionProvider to src/app/providers.tsx (wraps ThemeProvider + QueryClientProvider).
+- Wired account-menu Log Out → signOut({callbackUrl:'/'}); Settings dialog Log Out button → signOut too. Removed the fake "demo — log out disabled" toast.
+- Softened the dead-feature toasts from "isn't available in this demo build" to "is coming soon" (live-product language) in left-sidebar + header center nav + mobile sheet.
+- Created src/components/fb/app-shell.tsx — extracted the existing app shell (header + sidebars + feed + chat + dialogs).
+- Created src/components/fb/auth-screen.tsx — full-screen Facebook-styled login + register views: blue "facebook" wordmark, login card (email/password/Log In/Forgotten password?), green "Create new account" button switches to register form (first/last name/email/password/Sign Up with show-password toggle), sonner toasts for validation, auto-login after register + window reload.
+- Rewrote src/app/page.tsx: useSession() gate — loading → splash spinner; unauthenticated → <AuthScreen/>; authenticated → <AppShell/>. Single `/` route preserved.
+
+Bug found & fixed during verification:
+- Register returned HTTP 500 with "Unknown argument `password`" — the running dev server had the OLD Prisma client cached in memory (it started before the schema change). Restarted `bun run dev` to load the regenerated client; register then succeeded.
+
+Verification (Agent Browser, end-to-end):
+- Logged-out `/` → AuthScreen (facebook wordmark, email/password, Log In, Create new account). ✓
+- Register "Jordan Rivera" / jordan@example.com / secret123 → POST /api/auth/register 200, auto-signIn, reload → AppShell with feed. Header shows "JR Jordan Rivera"; create-post reads "What's on your mind, Jordan?". GET /api/me, /api/feed, /api/contacts, /api/notifications all 200. ✓
+- Logout (NextAuth signout POST 200) → reload → AuthScreen (session cleared). ✓
+- Re-login jordan@example.com / secret123 → feed visible as Jordan again (bcrypt auth against the persisted account). ✓
+- `bun run lint` passes; dev.log clean; no stale ME_EMAIL references.
+
+Stage Summary:
+- The app is now LIVE: real register + login + logout, bcrypt-hashed passwords, JWT sessions, protected APIs (401 when logged out). The auto-logged-in "demo mode" is gone.
+- Seeded users (Alex Morgan et al.) have password=null — they're the existing "community" visible in feed/contacts; only newly registered users can log in.
+- Login + register are full-screen views on `/` (respecting the single-route constraint), gated by useSession.
+- Screenshots saved: screenshot-login.png, screenshot-register.png, screenshot-auth-feed.png.

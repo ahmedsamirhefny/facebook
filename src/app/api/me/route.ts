@@ -5,7 +5,7 @@ import { getCurrentUser } from '@/lib/auth';
 // (for socket join + UI avatar in header / left sidebar).
 export async function GET() {
   const me = await getCurrentUser()
-  if (!me) return NextResponse.json({ error: 'not found' }, { status: 404 })
+  if (!me) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   return NextResponse.json({
     id: me.id,
     name: me.name,

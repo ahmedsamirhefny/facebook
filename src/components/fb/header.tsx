@@ -54,7 +54,7 @@ function CenterNav({ active, onChange }: { active: string; onChange: (k: string)
             onClick={() => {
               onChange(key)
               if (key !== 'home') {
-                toast(`${label} isn\u2019t available in this demo build.`, {
+                toast(`${label} is coming soon.`, {
                   description: 'Stick to Home for the feed, or open Friends.',
                 })
               }
@@ -230,7 +230,7 @@ export function Header() {
                   if (key === 'friends') {
                     setFriendsOpen(true)
                   } else if (key !== 'home') {
-                    toast(`${label} isn\u2019t available in this demo build.`, {
+                    toast(`${label} is coming soon.`, {
                       description: 'Stick to Home for the feed.',
                     })
                   }

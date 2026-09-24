@@ -4,10 +4,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Switch } from '@/components/ui/switch'
 import { useChatStore } from '@/lib/store'
 import { useTheme } from 'next-themes'
-import { toast } from 'sonner'
 import { useFeed } from '@/lib/hooks/queries'
 import { UserAvatar } from './user-avatar'
 import { Moon, Sun, LogOut, Info, Shield, Bell, Palette } from 'lucide-react'
+import { signOut } from 'next-auth/react'
 
 function Row({
   icon,
@@ -97,19 +97,14 @@ export function SettingsDialog() {
             <Switch defaultChecked aria-label="Notifications" />
           </Row>
           <Row icon={<Shield className="size-4" />} label="Privacy" desc="Friends only" />
-          <Row icon={<Info className="size-4" />} label="About" desc="Facebook clone · demo build" />
+          <Row icon={<Info className="size-4" />} label="About" desc="Facebook clone" />
 
           {/* Session */}
           <div className="px-2 pt-3 pb-1 text-xs font-semibold uppercase tracking-wide text-[#65676b] dark:text-[#b0b3b8]">
             Session
           </div>
           <button
-            onClick={() => {
-              setOpen(false)
-              toast('This is a demo — log out is disabled.', {
-                description: 'You are signed in as the seeded user "Alex Morgan".',
-              })
-            }}
+            onClick={() => signOut({ callbackUrl: '/' })}
             className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-[#f0f2f5] dark:hover:bg-[#3a3b3c] text-left"
           >
             <span className="grid place-items-center h-9 w-9 rounded-full bg-[#e4e6eb] dark:bg-[#3a3b3c] text-[#fa3e3e] shrink-0">

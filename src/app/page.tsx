@@ -1,31 +1,26 @@
 'use client'
 
-import { Header } from '@/components/fb/header'
-import { LeftSidebar } from '@/components/fb/left-sidebar'
-import { RightSidebar } from '@/components/fb/right-sidebar'
-import { Feed } from '@/components/fb/feed'
-import { ChatDock } from '@/components/fb/chat-dock'
-import { ProfileModal } from '@/components/fb/profile-modal'
-import { SettingsDialog } from '@/components/fb/settings-dialog'
-import { FriendsDialog } from '@/components/fb/friends-dialog'
-import { StoryViewer } from '@/components/fb/story-viewer'
+import { useSession } from 'next-auth/react'
+import { AppShell } from '@/components/fb/app-shell'
+import { AuthScreen } from '@/components/fb/auth-screen'
 
 export default function HomePage() {
-  return (
-    <div className="min-h-screen bg-[#f0f2f5] dark:bg-[#18191a] text-[#050505] dark:text-[#e4e6eb]">
-      <Header />
-      <main className="flex justify-center w-full px-0 sm:px-2 lg:px-4 gap-4 max-w-[1100px] xl:max-w-[1100px] mx-auto">
-        <LeftSidebar />
-        <div className="flex-1 min-w-0 max-w-[600px] py-3 px-1 sm:px-3">
-          <Feed />
+  const { status } = useSession()
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen grid place-items-center bg-[#f0f2f5] dark:bg-[#18191a]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="text-[#1877f2] font-bold text-4xl tracking-tight">facebook</div>
+          <div className="h-7 w-7 rounded-full border-2 border-[#1877f2] border-t-transparent animate-spin" />
         </div>
-        <RightSidebar />
-      </main>
-      <ProfileModal />
-      <FriendsDialog />
-      <SettingsDialog />
-      <StoryViewer />
-      <ChatDock />
-    </div>
-  )
+      </div>
+    )
+  }
+
+  if (status === 'unauthenticated') {
+    return <AuthScreen />
+  }
+
+  return <AppShell />
 }

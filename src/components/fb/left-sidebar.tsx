@@ -93,8 +93,8 @@ export function LeftSidebar() {
                 onClick={() =>
                   item.label === 'Friends'
                     ? setFriendsOpen(true)
-                    : toast(`${item.label} isn\u2019t available in this demo build.`, {
-                        description: 'Try the feed, chat, stories, search, and profile features.',
+                    : toast(`${item.label} is coming soon.`, {
+                        description: 'You can post, chat, search, view profiles and stories right now.',
                       })
                 }
               />
